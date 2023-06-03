@@ -29,10 +29,7 @@ public class GitHupApiRepository {
         return fork;
     }
 
-    public void setOwner(User owner) {
-        logger.info("Setting owner: {}", owner.getLogin());
-        this.user = owner;
-    }
+
 }
 
 

@@ -1,5 +1,8 @@
 package com.example.githubapi.service;
 
+import com.example.githubapi.exceptions.GithubApiException;
+import com.example.githubapi.exceptions.RepositoryNotFoundException;
+import com.example.githubapi.exceptions.UserNotFoundException;
 import com.example.githubapi.models.Branch;
 import com.example.githubapi.models.GitHupApiRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,9 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-@AllArgsConstructor
+
 
 @Service
 public class GithubService {
@@ -28,7 +32,7 @@ public class GithubService {
         this.mapper = new ObjectMapper();
     }
 
-    public List<GitHupApiRepository> fetchUserRepositories(String username) throws Exception {
+    public List<GitHupApiRepository> fetchUserRepositories(String username) throws UserNotFoundException, GithubApiException {
         logger.info("Fetching repositories for user: {}", username);
         Request request = new Request.Builder()
                 .url("https://api.github.com/users/" + username + "/repos")
@@ -37,13 +41,20 @@ public class GithubService {
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                handleUnsuccessfulResponse(response);
+                if (response.code() == 404) {
+                    throw new UserNotFoundException("User not found: " + username);
+                } else {
+                    throw new GithubApiException("API error: ");
+                }
             }
             return Arrays.asList(mapper.readValue(response.body().string(), GitHupApiRepository[].class));
+        } catch (IOException e) {
+            logger.error("Failed to fetch repositories for user: {}: {}", username, e.getMessage());
+            throw new GithubApiException(e.getMessage(), e);
         }
     }
 
-    public List<Branch> fetchRepositoryBranches(String username, String repoName) throws Exception {
+    public List<Branch> fetchRepositoryBranches(String username, String repoName) throws RepositoryNotFoundException, GithubApiException {
         logger.info("Fetching branches for repository: {} of user: {}", repoName, username);
         Request request = new Request.Builder()
                 .url("https://api.github.com/repos/" + username + "/" + repoName + "/branches")
@@ -51,25 +62,17 @@ public class GithubService {
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                handleUnsuccessfulResponse(response);
+                if (response.code() == 404) {
+                    throw new RepositoryNotFoundException("Repository not found: " + repoName);
+                } else {
+                    throw new GithubApiException("API error: ");
+                }
             }
             return Arrays.asList(mapper.readValue(response.body().string(), Branch[].class));
-        }
-    }
-
-    private void handleUnsuccessfulResponse(Response response) throws Exception {
-        String message = response.body() != null ? response.body().string() : "Unknown error";
-        logger.error("Unsuccessful response from GitHub API: {}", message);
-        switch (response.code()) {
-            case 404:
-                throw new Exception("User or repository not found: " + message);
-            case 403:
-                throw new Exception("Forbidden: " + message);
-            default:
-                throw new Exception("API error: " + message);
+        } catch (IOException e) {
+            logger.error("Failed to fetch branches for repository: {}: {}", repoName, e.getMessage());
+            throw new GithubApiException(e.getMessage(), e);
         }
     }
 }
-
-
 
