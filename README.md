@@ -63,5 +63,6 @@ Example response:
 "detail": "Acceptable representations: [application/json, application/*+json].",
 "instance": "/users/Sumson90/repos"
 }
+
 Note
 This API uses the Github v3 API as a backing API. You can refer to the official Github v3 API documentation for more details.
