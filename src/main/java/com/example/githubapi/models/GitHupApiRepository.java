@@ -1,5 +1,6 @@
 package com.example.githubapi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,8 +20,9 @@ import java.util.List;
 public class GitHupApiRepository {
     private String name;
     private List<Branch> branches;
+    @JsonIgnore
     private boolean fork;
-
+    @JsonIgnore
     private User user;
 
     private static final Logger logger = LoggerFactory.getLogger(GitHupApiRepository.class);

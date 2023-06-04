@@ -1,7 +1,7 @@
 package com.example.githubapi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,11 +12,9 @@ import lombok.Setter;
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
-
-    @JsonProperty("login")
+    @JsonIgnore
     private String login;
-
-    @JsonProperty("url")
+    @JsonIgnore
     private String url;
 
 

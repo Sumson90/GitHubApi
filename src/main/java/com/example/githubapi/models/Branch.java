@@ -1,5 +1,6 @@
 package com.example.githubapi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import lombok.Setter;
 public class Branch {
     private String name;
     private Commit commit;
+    @JsonIgnore
     private boolean isProtected;
 
 

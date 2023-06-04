@@ -6,7 +6,6 @@ import com.example.githubapi.exceptions.UserNotFoundException;
 import com.example.githubapi.models.Branch;
 import com.example.githubapi.models.GitHupApiRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -58,7 +57,7 @@ public class GithubService {
         logger.info("Fetching branches for repository: {} of user: {}", repoName, username);
         Request request = new Request.Builder()
                 .url("https://api.github.com/repos/" + username + "/" + repoName + "/branches")
-                .build();
+                .build();https://api.github.com/repos/
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
