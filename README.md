@@ -67,20 +67,35 @@ Get all repositories of the given Github username.
 
 [
     {
+    
         "name": "EquipRental",
+        
         "owner": {
+        
         "login": "Sumson90"
+        
             },
+            
             "branches": [
+            
                 {
+                
               "name": "firstCloneBranch",
+              
                 "commit": {
+                
                 "sha": "c35edc2129b9a989fab24bbcd5a9b1dc20636e47"
+                
                 }
             }
+            
+            
         ]
+        
     }
+    
 ]
+
 
 
 ## Testing
