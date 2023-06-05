@@ -6,72 +6,63 @@ import com.example.githubapi.exceptions.UserNotFoundException;
 import com.example.githubapi.models.Branch;
 import com.example.githubapi.models.GitHupApiRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Flux;
 
 
 @Service
 public class GithubService {
-    private final OkHttpClient client;
+
+    private final WebClient webClient;
     private final ObjectMapper mapper;
     private static final Logger logger = LoggerFactory.getLogger(GithubService.class);
 
     private final String authToken = System.getenv("GITHUB_AUTH_TOKEN");
 
     public GithubService() {
-        this.client = new OkHttpClient();
+        this.webClient = WebClient.builder()
+                .baseUrl("https://api.github.com")
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "token " + authToken)
+                .build();
         this.mapper = new ObjectMapper();
     }
 
-    public List<GitHupApiRepository> fetchUserRepositories(String username) throws UserNotFoundException, GithubApiException {
+    public Flux<GitHupApiRepository> fetchUserRepositories(String username) {
         logger.info("Fetching repositories for user: {}", username);
-        Request request = new Request.Builder()
-                .url("https://api.github.com/users/" + username + "/repos")
-                .addHeader("Authorization", "token " + authToken)
-                .build();
 
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                if (response.code() == 404) {
-                    throw new UserNotFoundException("User not found: " + username);
-                } else {
-                    throw new GithubApiException("API error: ");
-                }
-            }
-            return Arrays.asList(mapper.readValue(response.body().string(), GitHupApiRepository[].class));
-        } catch (IOException e) {
-            logger.error("Failed to fetch repositories for user: {}: {}", username, e.getMessage());
-            throw new GithubApiException(e.getMessage(), e);
-        }
+        return webClient.get()
+                .uri("/users/" + username + "/repos")
+                .retrieve()
+                .bodyToFlux(GitHupApiRepository.class)
+                .onErrorResume(e -> {
+                    if (e instanceof WebClientResponseException.NotFound) {
+                        return Flux.error(new UserNotFoundException("User not found: " + username));
+                    } else {
+                        return Flux.error(new GithubApiException("API error: ", e));
+                    }
+                });
     }
 
-    public List<Branch> fetchRepositoryBranches(String username, String repoName) throws RepositoryNotFoundException, GithubApiException {
+    public Flux<Branch> fetchRepositoryBranches(String username, String repoName) {
         logger.info("Fetching branches for repository: {} of user: {}", repoName, username);
-        Request request = new Request.Builder()
-                .url("https://api.github.com/repos/" + username + "/" + repoName + "/branches")
-                .build();https://api.github.com/repos/
 
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                if (response.code() == 404) {
-                    throw new RepositoryNotFoundException("Repository not found: " + repoName);
-                } else {
-                    throw new GithubApiException("API error: ");
-                }
-            }
-            return Arrays.asList(mapper.readValue(response.body().string(), Branch[].class));
-        } catch (IOException e) {
-            logger.error("Failed to fetch branches for repository: {}: {}", repoName, e.getMessage());
-            throw new GithubApiException(e.getMessage(), e);
-        }
+        return webClient.get()
+                .uri("/repos/" + username + "/" + repoName + "/branches")
+                .retrieve()
+                .bodyToFlux(Branch.class)
+                .onErrorResume(e -> {
+                    if (e instanceof WebClientResponseException.NotFound) {
+                        return Flux.error(new RepositoryNotFoundException("Repository not found: " + repoName));
+                    } else {
+                        return Flux.error(new GithubApiException("API error: ", e));
+                    }
+                });
     }
 }
+
 
