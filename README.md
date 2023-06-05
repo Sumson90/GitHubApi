@@ -59,28 +59,43 @@ Get all repositories of the given Github username.
 
 ## Responses:
 
-200 OK: Returns a JSON array of repositories for the valid Github username. Each repository object includes the repository name, owner login, and an array of branches. Each branch object includes its name and the SHA of its latest commit.
-
 404 Not Found: The Github username does not exist or has no repositories. Response includes a status and a message.
 
 406 Not Acceptable: The requested representation is not acceptable. It is currently limited to JSON only. Response includes a status, detail, and the instance URL.
 
+200 OK: Returns a JSON array of repositories for the valid Github username. Each repository object includes the repository name, owner login, and an array of branches. Each branch object includes its name and the SHA of its latest commit.
+
 [
     {
+    
         "name": "EquipRental",
+        
         "owner": {
+        
         "login": "Sumson90"
+        
             },
+            
             "branches": [
+            
                 {
+                
               "name": "firstCloneBranch",
+              
                 "commit": {
+                
                 "sha": "c35edc2129b9a989fab24bbcd5a9b1dc20636e47"
+                
                 }
             }
+            
+            
         ]
+        
     }
+    
 ]
+
 
 
 ## Testing
