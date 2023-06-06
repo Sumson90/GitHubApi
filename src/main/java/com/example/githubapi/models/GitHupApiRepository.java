@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Repository
@@ -22,8 +23,7 @@ public class GitHupApiRepository {
     private List<Branch> branches;
     @JsonIgnore
     private boolean fork;
-    @JsonIgnore
-    private User user;
+    private Owner owner;
 
     private static final Logger logger = LoggerFactory.getLogger(GitHupApiRepository.class);
 
