@@ -2,10 +2,7 @@ package com.example.githubapi.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -17,6 +14,7 @@ import java.util.List;
 @Repository
 @Getter
 @Setter
+@EqualsAndHashCode
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GitHupApiRepository {
     private String name;
