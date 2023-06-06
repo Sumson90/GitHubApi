@@ -18,7 +18,6 @@ import reactor.core.publisher.Flux;
 public class GithubService {
 
 
-
     private final WebClient webClient;
     private static final Logger logger = LoggerFactory.getLogger(GithubService.class);
 
@@ -30,7 +29,6 @@ public class GithubService {
                 .build();
         this.authToken = authToken;
     }
-
 
     public Flux<GitHupApiRepository> fetchUserRepositories(String username) {
         logger.info("Fetching repositories for user: {}", username);

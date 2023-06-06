@@ -1,12 +1,19 @@
 package com.example.githubapi.exceptions;
 
-import jakarta.servlet.http.HttpServletResponse;
+
+
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ServerWebInputException;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -30,16 +37,23 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidAcceptHeaderException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidAcceptHeaderException(InvalidAcceptHeaderException e, HttpServletResponse response) {
-        response.setContentType("application/json");
+    public ResponseEntity<ErrorResponse> handleInvalidAcceptHeaderException(InvalidAcceptHeaderException e) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_ACCEPTABLE.value(), e.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_ACCEPTABLE);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(errorResponse, headers, HttpStatus.NOT_ACCEPTABLE);
     }
 
-    @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
-    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
-    public ResponseEntity<Object> handleHttpMediaTypeNotAcceptableException(HttpMediaTypeNotAcceptableException e) {
-        return buildResponseEntity(HttpStatus.NOT_ACCEPTABLE, e.getMessage());
+    @ExceptionHandler(ServerWebInputException.class)
+    public ResponseEntity<Map<String, Object>> handleServerWebInputException(ServerWebInputException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("status", HttpStatus.NOT_ACCEPTABLE.value());
+        body.put("message", "Invalid Accept header: " + ex.getLocalizedMessage());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        return new ResponseEntity<>(body, headers, HttpStatus.NOT_ACCEPTABLE);
     }
 
 

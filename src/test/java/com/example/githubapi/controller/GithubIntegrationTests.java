@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -52,7 +53,19 @@ public class GithubIntegrationTests {
                 .expectBody()
                 .jsonPath("$.message").isEqualTo("User not found: " + username);
     }
+    @Test
+    public void testInvalidAcceptHeader() {
+        String username = "Sumson90";
 
+        webTestClient.get()
+                .uri("/users/{username}/repos", username)
+                .header(HttpHeaders.AUTHORIZATION, "token " + githubToken)
+                .accept(MediaType.APPLICATION_XML)
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.NOT_ACCEPTABLE.value())
+                .expectBody()
+                .jsonPath("$.status").isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
+    }
 
 
 }
